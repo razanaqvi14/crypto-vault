@@ -10,8 +10,7 @@ A **Streamlit-based web application** that lets you explore and interact with cl
 
 ## 🚀 Live Demo
 
-👉 [Launch App on Streamlit Cloud](https://crypto-vault-app.streamlit.app)  
-(Replace this link with your deployed app)
+👉 [Launch App on Streamlit Cloud](https://crypto-vault-app-38m4hkiykm6egvx84pfqgv.streamlit.app)
 
 ---
 
@@ -41,6 +40,5 @@ A **Streamlit-based web application** that lets you explore and interact with cl
 ### 1. Clone the repo
 
 ```bash
-git clone https://github.com/your-username/crypto-vault-app.git
-cd crypto-vault-app
+git clone https://github.com/razanaqvi14/crypto-vault-app
 ```
