@@ -3,8 +3,7 @@
 A **Streamlit-based web application** that lets you explore and interact with classic cryptographic ciphers built for educational use, experimentation, and learning. Encrypt and decrypt text using time-tested algorithms from cryptography history.
 
 ![Crypto Vault Banner](https://img.shields.io/badge/Built%20with-Streamlit-blue?style=flat-square)
-![License](https://img.shields.io/github/license/razanaqvi14/crypto-vault-app?style=flat-square)
-![Python](https://img.shields.io/badge/Python-3.12%2B-blue.svg?style=flat-square)
+![Python](https://img.shields.io/badge/Python-3.12-blue.svg?style=flat-square)
 
 ---
 
