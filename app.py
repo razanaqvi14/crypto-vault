@@ -183,38 +183,40 @@ def row_columnar_decrypt(ciphertext, key):
 
 
 # ------------------- Playfair Cipher ------------------- #
-def generate_playfair_matrix(key):
+def prepare_text(text, for_encryption=True):
+    text = text.upper().replace("J", "I")
+    cleaned = ""
+    i = 0
+    while i < len(text):
+        char = text[i]
+        if not char.isalpha():
+            i += 1
+            continue
+        if i + 1 < len(text) and text[i] == text[i + 1]:
+            cleaned += char + "X"
+            i += 1
+        elif i + 1 < len(text):
+            cleaned += char + text[i + 1]
+            i += 2
+        else:
+            cleaned += char + "X"
+            i += 1
+    return cleaned
+
+
+def generate_matrix(key):
     key = key.upper().replace("J", "I")
     seen = set()
     matrix = []
-
-    for char in key + string.ascii_uppercase:
-        if char not in seen and char.isalpha():
+    for char in key:
+        if char.isalpha() and char not in seen:
+            seen.add(char)
+            matrix.append(char)
+    for char in "ABCDEFGHIKLMNOPQRSTUVWXYZ":
+        if char not in seen:
             seen.add(char)
             matrix.append(char)
     return [matrix[i : i + 5] for i in range(0, 25, 5)]
-
-
-def prepare_playfair_text(text):
-    text = text.upper().replace("J", "I")
-    result = ""
-    i = 0
-    while i < len(text):
-        a = text[i]
-        b = ""
-        if (i + 1) < len(text):
-            b = text[i + 1]
-        else:
-            b = "X"
-        if a == b:
-            result += a + "X"
-            i += 1
-        else:
-            result += a + b
-            i += 2
-    if len(result) % 2 != 0:
-        result += "X"
-    return result
 
 
 def find_position(matrix, char):
@@ -222,13 +224,13 @@ def find_position(matrix, char):
         for j in range(5):
             if matrix[i][j] == char:
                 return i, j
-    return None
+    return -1, -1
 
 
-def playfair_encrypt(plaintext, key):
-    matrix = generate_playfair_matrix(key)
-    text = prepare_playfair_text(plaintext)
-    ciphertext = ""
+def playfair_encrypt(text, key):
+    matrix = generate_matrix(key)
+    text = prepare_text(text)
+    result = ""
 
     for i in range(0, len(text), 2):
         a, b = text[i], text[i + 1]
@@ -236,38 +238,36 @@ def playfair_encrypt(plaintext, key):
         row2, col2 = find_position(matrix, b)
 
         if row1 == row2:
-            ciphertext += matrix[row1][(col1 + 1) % 5]
-            ciphertext += matrix[row2][(col2 + 1) % 5]
+            result += matrix[row1][(col1 + 1) % 5]
+            result += matrix[row2][(col2 + 1) % 5]
         elif col1 == col2:
-            ciphertext += matrix[(row1 + 1) % 5][col1]
-            ciphertext += matrix[(row2 + 1) % 5][col2]
+            result += matrix[(row1 + 1) % 5][col1]
+            result += matrix[(row2 + 1) % 5][col2]
         else:
-            ciphertext += matrix[row1][col2]
-            ciphertext += matrix[row2][col1]
+            result += matrix[row1][col2]
+            result += matrix[row2][col1]
+    return result
 
-    return ciphertext
 
+def playfair_decrypt(text, key):
+    matrix = generate_matrix(key)
+    result = ""
 
-def playfair_decrypt(ciphertext, key):
-    matrix = generate_playfair_matrix(key)
-    plaintext = ""
-
-    for i in range(0, len(ciphertext), 2):
-        a, b = ciphertext[i], ciphertext[i + 1]
+    for i in range(0, len(text), 2):
+        a, b = text[i], text[i + 1]
         row1, col1 = find_position(matrix, a)
         row2, col2 = find_position(matrix, b)
 
         if row1 == row2:
-            plaintext += matrix[row1][(col1 - 1) % 5]
-            plaintext += matrix[row2][(col2 - 1) % 5]
+            result += matrix[row1][(col1 - 1) % 5]
+            result += matrix[row2][(col2 - 1) % 5]
         elif col1 == col2:
-            plaintext += matrix[(row1 - 1) % 5][col1]
-            plaintext += matrix[(row2 - 1) % 5][col2]
+            result += matrix[(row1 - 1) % 5][col1]
+            result += matrix[(row2 - 1) % 5][col2]
         else:
-            plaintext += matrix[row1][col2]
-            plaintext += matrix[row2][col1]
-
-    return plaintext
+            result += matrix[row1][col2]
+            result += matrix[row2][col1]
+    return result
 
 
 # ------------------- Hill Cipher ------------------- #
@@ -441,14 +441,15 @@ if st.button("Run"):
                 result = row_columnar_decrypt(text.replace(" ", ""), key)
             st.success(f"Result:\n\n{result}")
     elif cipher_type == "Playfair Cipher":
-        if not key.isalpha():
-            st.error("Key must be alphabetic.")
+        if not key.strip() or not text.strip():
+            st.error("Please enter both key and text.")
+        elif not key.isalpha():
+            st.error("Key should only contain alphabetic characters.")
         else:
-            clean_text = text.replace(" ", "")
             if mode == "🔒 Encrypt":
-                result = playfair_encrypt(clean_text, key)
+                result = playfair_encrypt(text, key)
             else:
-                result = playfair_decrypt(clean_text, key)
+                result = playfair_decrypt(text.upper().replace("J", "I"), key)
             st.success(f"Result:\n\n{result}")
     elif cipher_type == "Hill Cipher":
         if len(key) != 4 or not key.isalpha():
