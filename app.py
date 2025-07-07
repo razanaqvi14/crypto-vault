@@ -1,6 +1,8 @@
 import streamlit as st
-import string
-import numpy as np
+from Crypto.PublicKey import RSA
+from Crypto.Cipher import PKCS1_OAEP, DES
+from Crypto.Util.Padding import pad, unpad
+import base64
 
 
 # ------------------- Caesar Cipher ------------------- #
@@ -300,9 +302,6 @@ def numbers_to_text(numbers):
     return "".join([chr(num % 26 + ord("A")) for num in numbers])
 
 
-# -------------------- Hill Cipher Logic -------------------- #
-
-
 def encrypt(plaintext, key_matrix):
     plaintext = process_text(plaintext)
     pairs = chunk_text(plaintext)
@@ -321,7 +320,6 @@ def decrypt(ciphertext, key_matrix):
     ciphertext = process_text(ciphertext)
     pairs = chunk_text(ciphertext)
 
-    # Calculate determinant
     a, b = key_matrix[0]
     c, d = key_matrix[1]
     det = (a * d - b * c) % 26
@@ -330,7 +328,6 @@ def decrypt(ciphertext, key_matrix):
     if det_inv is None:
         return "❌ Key matrix is not invertible modulo 26."
 
-    # Compute inverse matrix mod 26
     inv_matrix = [
         [(d * det_inv) % 26, (-b * det_inv) % 26],
         [(-c * det_inv) % 26, (a * det_inv) % 26],
@@ -404,6 +401,7 @@ elif cipher_type == "Hill Cipher":
 if st.button("Run"):
     if not text.strip():
         st.warning("Please enter some text.")
+
     elif cipher_type == "Caesar Cipher":
         if mode == "🔒 Encrypt":
             result = caesar_encrypt(text, shift)
