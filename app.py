@@ -404,42 +404,62 @@ if st.button("Run"):
     elif cipher_type == "Caesar Cipher":
         if mode == "🔒 Encrypt":
             result = caesar_encrypt(text, shift)
+            st.success("🔐 Encrypted Text:")
+            st.code(result, language="")
         else:
             result = caesar_decrypt(text, shift)
-        st.success(f"Result:\n\n{result}")
+            st.success("🔓 Decrypted Text:")
+            st.code(result, language="")
+
     elif cipher_type == "Vigenère Cipher":
         if not key.isalpha():
             st.error("Key must contain only alphabetic characters.")
         else:
             if mode == "🔒 Encrypt":
                 result = vigenere_encrypt(text, key)
+                st.success("🔐 Encrypted Text:")
+                st.code(result, language="")
             else:
                 result = vigenere_decrypt(text, key)
-            st.success(f"Result:\n\n{result}")
+                st.success("🔓 Decrypted Text:")
+                st.code(result, language="")
+
     elif cipher_type == "Vernam (OTP) Cipher":
         if not key.isalpha() or len(key) != len(text):
             st.error("Key must be alphabetic and match the length of the text.")
         else:
             if mode == "🔒 Encrypt":
                 result = vernam_encrypt(text, key)
+                st.success("🔐 Encrypted Text:")
+                st.code(result, language="")
             else:
                 result = vernam_decrypt(text, key)
-            st.success(f"Result:\n\n{result}")
+                st.success("🔓 Decrypted Text:")
+                st.code(result, language="")
+
     elif cipher_type == "Rail Fence Cipher":
         if mode == "🔒 Encrypt":
             result = rail_fence_encrypt(text, rails)
+            st.success("🔐 Encrypted Text:")
+            st.code(result, language="")
         else:
             result = rail_fence_decrypt(text, rails)
-        st.success(f"Result:\n\n{result}")
+            st.success("🔓 Decrypted Text:")
+            st.code(result, language="")
+
     elif cipher_type == "Row Columnar Cipher":
         if not key.isalpha():
             st.error("Key must be alphabetic.")
         else:
             if mode == "🔒 Encrypt":
                 result = row_columnar_encrypt(text.replace(" ", ""), key)
+                st.success("🔐 Encrypted Text:")
+                st.code(result, language="")
             else:
                 result = row_columnar_decrypt(text.replace(" ", ""), key)
-            st.success(f"Result:\n\n{result}")
+                st.success("🔓 Decrypted Text:")
+                st.code(result, language="")
+
     elif cipher_type == "Playfair Cipher":
         if not key.strip() or not text.strip():
             st.error("Please enter both key and text.")
@@ -448,9 +468,13 @@ if st.button("Run"):
         else:
             if mode == "🔒 Encrypt":
                 result = playfair_encrypt(text, key)
+                st.success("🔐 Encrypted Text:")
+                st.code(result, language="")
             else:
                 result = playfair_decrypt(text.upper().replace("J", "I"), key)
-            st.success(f"Result:\n\n{result}")
+                st.success("🔓 Decrypted Text:")
+                st.code(result, language="")
+
     elif cipher_type == "Hill Cipher":
         if len(key) != 4 or not key.isalpha():
             st.error("Key must be exactly 4 alphabetic letters (e.g., 'GYBN').")
@@ -458,6 +482,9 @@ if st.button("Run"):
             clean_text = text.replace(" ", "")
             if mode == "🔒 Encrypt":
                 result = hill_encrypt(clean_text, key)
+                st.success("🔐 Encrypted Text:")
+                st.code(result, language="")
             else:
                 result = hill_decrypt(clean_text, key)
-            st.success(f"Result:\n\n{result}")
+                st.success("🔓 Decrypted Text:")
+                st.code(result, language="")
