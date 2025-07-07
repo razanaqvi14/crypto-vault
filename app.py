@@ -271,80 +271,79 @@ def playfair_decrypt(text, key):
 
 
 # ------------------- Hill Cipher ------------------- #
-def text_to_numbers(text):
-    return [ord(c.upper()) - ord("A") for c in text]
-
-
-def numbers_to_text(numbers):
-    return "".join([chr(n % 26 + ord("A")) for n in numbers])
-
-
-def prepare_hill_text(text):
-    text = text.upper().replace(" ", "")
-    if len(text) % 2 != 0:
-        text += "X"
-    return text
-
-
-def hill_encrypt(plaintext, key):
-    plaintext = prepare_hill_text(plaintext)
-    key = key.upper()
-
-    if len(key) != 4 or not key.isalpha():
-        return "Key must be 4 alphabetic characters."
-
-    key_matrix = np.array(text_to_numbers(key)).reshape(2, 2)
-
-    result = ""
-    for i in range(0, len(plaintext), 2):
-        block = np.array(text_to_numbers(plaintext[i : i + 2]))
-        cipher_block = np.dot(key_matrix, block) % 26
-        result += numbers_to_text(cipher_block)
-
-    return result
-
-
 def mod_inverse(a, m):
-    for i in range(1, m):
-        if (a * i) % m == 1:
-            return i
+    """Modular inverse using extended Euclidean algorithm."""
+    a = a % m
+    for x in range(1, m):
+        if (a * x) % m == 1:
+            return x
     return None
 
 
-def matrix_mod_inv(matrix, modulus):
-    det = int(np.round(np.linalg.det(matrix))) % modulus
-    det_inv = mod_inverse(det, modulus)
+def process_text(text):
+    """Remove non-letters, replace J with I, and pad with X if needed."""
+    cleaned = "".join(filter(str.isalpha, text.upper())).replace("J", "I")
+    if len(cleaned) % 2 != 0:
+        cleaned += "X"
+    return cleaned
+
+
+def chunk_text(text, size=2):
+    return [text[i : i + size] for i in range(0, len(text), size)]
+
+
+def text_to_numbers(text):
+    return [ord(char) - ord("A") for char in text]
+
+
+def numbers_to_text(numbers):
+    return "".join([chr(num % 26 + ord("A")) for num in numbers])
+
+
+# -------------------- Hill Cipher Logic -------------------- #
+
+
+def encrypt(plaintext, key_matrix):
+    plaintext = process_text(plaintext)
+    pairs = chunk_text(plaintext)
+
+    result = []
+    for pair in pairs:
+        nums = text_to_numbers(pair)
+        x = (key_matrix[0][0] * nums[0] + key_matrix[0][1] * nums[1]) % 26
+        y = (key_matrix[1][0] * nums[0] + key_matrix[1][1] * nums[1]) % 26
+        result.extend([x, y])
+
+    return numbers_to_text(result)
+
+
+def decrypt(ciphertext, key_matrix):
+    ciphertext = process_text(ciphertext)
+    pairs = chunk_text(ciphertext)
+
+    # Calculate determinant
+    a, b = key_matrix[0]
+    c, d = key_matrix[1]
+    det = (a * d - b * c) % 26
+    det_inv = mod_inverse(det, 26)
+
     if det_inv is None:
-        return None
+        return "❌ Key matrix is not invertible modulo 26."
 
-    adj = (
-        np.array([[matrix[1][1], -matrix[0][1]], [-matrix[1][0], matrix[0][0]]])
-        % modulus
-    )
+    # Compute inverse matrix mod 26
+    inv_matrix = [
+        [(d * det_inv) % 26, (-b * det_inv) % 26],
+        [(-c * det_inv) % 26, (a * det_inv) % 26],
+    ]
 
-    return (det_inv * adj) % modulus
+    result = []
+    for pair in pairs:
+        nums = text_to_numbers(pair)
+        x = (inv_matrix[0][0] * nums[0] + inv_matrix[0][1] * nums[1]) % 26
+        y = (inv_matrix[1][0] * nums[0] + inv_matrix[1][1] * nums[1]) % 26
+        result.extend([x, y])
 
-
-def hill_decrypt(ciphertext, key):
-    ciphertext = prepare_hill_text(ciphertext)
-    key = key.upper()
-
-    if len(key) != 4 or not key.isalpha():
-        return "Key must be 4 alphabetic characters."
-
-    key_matrix = np.array(text_to_numbers(key)).reshape(2, 2)
-    inv_matrix = matrix_mod_inv(key_matrix, 26)
-
-    if inv_matrix is None:
-        return "Key matrix is not invertible modulo 26."
-
-    result = ""
-    for i in range(0, len(ciphertext), 2):
-        block = np.array(text_to_numbers(ciphertext[i : i + 2]))
-        plain_block = np.dot(inv_matrix, block) % 26
-        result += numbers_to_text(plain_block)
-
-    return result
+    return numbers_to_text(result)
 
 
 # ------------------- Streamlit UI ------------------- #
@@ -395,7 +394,11 @@ elif cipher_type == "Row Columnar Cipher":
 elif cipher_type == "Playfair Cipher":
     key = st.text_input("Enter Playfair Key (Alphabet only):", key="playfair_key")
 elif cipher_type == "Hill Cipher":
-    key = st.text_input("Enter Hill Cipher Key (4 letters only):", key="hill_key")
+    key = st.text_input(
+        "Enter 4 integers for 2x2 key matrix (comma-separated)",
+        value="3,3,2,5",
+        key="hill_key",
+    )
 
 
 if st.button("Run"):
@@ -476,15 +479,27 @@ if st.button("Run"):
                 st.code(result, language="")
 
     elif cipher_type == "Hill Cipher":
-        if len(key) != 4 or not key.isalpha():
-            st.error("Key must be exactly 4 alphabetic letters (e.g., 'GYBN').")
-        else:
-            clean_text = text.replace(" ", "")
-            if mode == "🔒 Encrypt":
-                result = hill_encrypt(clean_text, key)
-                st.success("🔐 Encrypted Text:")
-                st.code(result, language="")
+        try:
+            key_parts = list(map(int, key.strip().split(",")))
+            if len(key_parts) != 4:
+                st.error("Please enter exactly 4 integers.")
             else:
-                result = hill_decrypt(clean_text, key)
-                st.success("🔓 Decrypted Text:")
-                st.code(result, language="")
+                key_matrix = [
+                    [key_parts[0], key_parts[1]],
+                    [key_parts[2], key_parts[3]],
+                ]
+
+                if mode == "🔒 Encrypt":
+                    result = encrypt(text, key_matrix)
+                    st.success("🔐 Encrypted Text:")
+                    st.code(result, language="")
+                else:
+                    result = decrypt(text, key_matrix)
+                    if result.startswith("❌"):
+                        st.error(result)
+                    else:
+                        st.success("🔓 Decrypted Text:")
+                        st.code(result, language="")
+
+        except Exception as e:
+            st.error(f"An error occurred: {str(e)}")
