@@ -1,8 +1,4 @@
 import streamlit as st
-from Crypto.PublicKey import RSA
-from Crypto.Cipher import PKCS1_OAEP, DES
-from Crypto.Util.Padding import pad, unpad
-import base64
 
 
 # ------------------- Caesar Cipher ------------------- #
