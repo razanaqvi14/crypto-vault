@@ -340,11 +340,11 @@ def decrypt(ciphertext, key_matrix):
 
 
 # ------------------- Streamlit UI ------------------- #
-st.set_page_config(page_title="CryptoVault", page_icon="🔒", layout="centered")
+st.set_page_config(page_title="CryptoVault", page_icon="🔐", layout="centered")
 
 st.markdown(
     """
-    <h1 style='text-align: center; color: #4B8BBE;'>🔐 CryptoVault</h1>
+    <h1 style='text-align: center; color: #4B8BBE;'>🔒 CryptoVault</h1>
     <h4 style='text-align: center; color: gray;'>	A secure vault of classical ciphers</h4>
 """,
     unsafe_allow_html=True,
@@ -367,7 +367,7 @@ cipher_type = st.selectbox(
 
 
 mode = st.radio(
-    "Choose Mode:", ["🔒 Encrypt", "🔓 Decrypt"], horizontal=True, key="mode_radio"
+    "Choose Mode:", ["🔐 Encrypt", "🔓 Decrypt"], horizontal=True, key="mode_radio"
 )
 
 text = st.text_area("Enter your text here:", height=150, key="input_text_area")
