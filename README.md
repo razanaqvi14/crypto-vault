@@ -1,4 +1,4 @@
-# 🔐 Crypto Vault App
+# 🔐 Crypto Vault
 
 A **Streamlit-based web application** that lets you explore and interact with classic cryptographic ciphers built for educational use, experimentation, and learning. Encrypt and decrypt text using time-tested algorithms from cryptography history.
 
@@ -39,5 +39,5 @@ A **Streamlit-based web application** that lets you explore and interact with cl
 ### 1. Clone the repo
 
 ```bash
-git clone https://github.com/razanaqvi14/crypto-vault-app
+git clone https://github.com/razanaqvi14/crypto-vault
 ```
