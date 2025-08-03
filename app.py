@@ -344,7 +344,7 @@ st.set_page_config(page_title="CryptoVault", page_icon="🔐", layout="centered"
 
 st.markdown(
     """
-    <h1 style='text-align: center; color: #4B8BBE;'>🔒 CryptoVault</h1>
+    <h1 style='text-align: center; color: #4B8BBE;'>🔐 CryptoVault</h1>
     <h4 style='text-align: center; color: gray;'>	A secure vault of classical ciphers</h4>
 """,
     unsafe_allow_html=True,
